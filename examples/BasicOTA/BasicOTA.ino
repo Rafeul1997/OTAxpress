@@ -3,7 +3,7 @@
 OTAxpress ota("YOUR_SSID", "YOUR_PASSWORD");
 
 void setup() {
-  ota.setStatusLED(2);   // Optional LED
+  ota.setStatusLED(2);   // Built-in LED (optional)
   ota.begin();
 
   // Your setup code here
