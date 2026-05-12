@@ -9,9 +9,11 @@ Fast, minimal OTA updates for ESP32.
 
 ## Features
 - One-line OTA setup
-- Auto hostname
 - WiFi auto reconnect
 - LED status indicator
+- Enforced user-defined hostname
+- Enforced OTA password requirement
+
 
 ## Example
 
@@ -21,17 +23,18 @@ Fast, minimal OTA updates for ESP32.
 OTAxpress ota("YOUR_SSID", "YOUR_PASSWORD");
 
 void setup() {
-  ota.setStatusLED(2);   // Built-in LED (optional)
+  ota.setHostname("MyESP32");     // REQUIRED
+  ota.setOTAPassword("1234");     // REQUIRED
+  ota.setStatusLED(2);            // Optional
+
   ota.begin();
 
-  // Your setup code here
+
+   // Your setup code here
 }
 
 void loop() {
   ota.handle();
 
-  // Your application code here
-}
-void loop() {
-  ota.handle();
+   // Your application code here
 }
