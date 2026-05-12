@@ -18,22 +18,35 @@ void OTAxpress::setStatusLED(int pin) {
   pinMode(_ledPin, OUTPUT);
 }
 
-void OTAxpress::begin() {
-  Serial.begin(115200);
-
+void OTAxpress::connectWiFi() {
   WiFi.begin(_ssid, _password);
+
   Serial.print("Connecting to WiFi");
+  int retry = 0;
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+    retry++;
+
+    // Restart after long failure
+    if (retry > 40) {
+      Serial.println("\nWiFi Failed! Restarting...");
+      ESP.restart();
+    }
   }
 
   Serial.println("\nConnected!");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
+}
 
-  // Auto hostname if user didn't set one
+void OTAxpress::begin() {
+  Serial.begin(115200);
+
+  connectWiFi();
+
+  // Auto hostname
   if (String(_hostname) == "OTAxpress-ESP32") {
     String mac = WiFi.macAddress();
     mac.replace(":", "");
@@ -48,7 +61,7 @@ void OTAxpress::begin() {
   }
 
   ArduinoOTA.onStart([this]() {
-    Serial.println("OTA Start");
+    Serial.println("\nOTA Start");
     if (_ledPin != -1) digitalWrite(_ledPin, HIGH);
   });
 
@@ -57,18 +70,30 @@ void OTAxpress::begin() {
     if (_ledPin != -1) digitalWrite(_ledPin, LOW);
   });
 
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress * 100) / total);
+  ArduinoOTA.onProgress([this](unsigned int progress, unsigned int total) {
+    int percent = (progress * 100) / total;
+    Serial.printf("Progress: %d%%\r", percent);
+
+    // Blink LED during OTA
+    if (_ledPin != -1) {
+      digitalWrite(_ledPin, !digitalRead(_ledPin));
+    }
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]\n", error);
+    Serial.printf("\nError[%u]: ", error);
   });
 
   ArduinoOTA.begin();
+
   Serial.println("OTAxpress Ready 🚀");
 }
 
 void OTAxpress::handle() {
+  // Auto reconnect WiFi if disconnected
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.reconnect();
+  }
+
   ArduinoOTA.handle();
 }
