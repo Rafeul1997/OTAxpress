@@ -29,7 +29,6 @@ void OTAxpress::connectWiFi() {
     Serial.print(".");
     retry++;
 
-    // Restart after long failure
     if (retry > 40) {
       Serial.println("\nWiFi Failed! Restarting...");
       ESP.restart();
@@ -37,28 +36,23 @@ void OTAxpress::connectWiFi() {
   }
 
   Serial.println("\nConnected!");
-  Serial.print("IP Address: ");
+  Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 }
 
 void OTAxpress::begin() {
   Serial.begin(115200);
 
+  // 🔴 STRICT CHECK (IMPORTANT)
+  if (_hostname == NULL || _otaPassword == NULL) {
+    Serial.println("ERROR: Hostname and OTA Password must be set!");
+    while (true); // Stop execution
+  }
+
   connectWiFi();
 
-  // Auto hostname
-  if (String(_hostname) == "OTAxpress-ESP32") {
-    String mac = WiFi.macAddress();
-    mac.replace(":", "");
-    String autoName = "OTAxpress-" + mac.substring(6);
-    ArduinoOTA.setHostname(autoName.c_str());
-  } else {
-    ArduinoOTA.setHostname(_hostname);
-  }
-
-  if (_otaPassword != NULL) {
-    ArduinoOTA.setPassword(_otaPassword);
-  }
+  ArduinoOTA.setHostname(_hostname);
+  ArduinoOTA.setPassword(_otaPassword);
 
   ArduinoOTA.onStart([this]() {
     Serial.println("\nOTA Start");
@@ -74,14 +68,13 @@ void OTAxpress::begin() {
     int percent = (progress * 100) / total;
     Serial.printf("Progress: %d%%\r", percent);
 
-    // Blink LED during OTA
     if (_ledPin != -1) {
       digitalWrite(_ledPin, !digitalRead(_ledPin));
     }
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("\nError[%u]: ", error);
+    Serial.printf("\nError[%u]\n", error);
   });
 
   ArduinoOTA.begin();
@@ -90,7 +83,6 @@ void OTAxpress::begin() {
 }
 
 void OTAxpress::handle() {
-  // Auto reconnect WiFi if disconnected
   if (WiFi.status() != WL_CONNECTED) {
     WiFi.reconnect();
   }
