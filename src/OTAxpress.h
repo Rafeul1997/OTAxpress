@@ -22,6 +22,8 @@ class OTAxpress {
     const char* _hostname = "OTAxpress-ESP32";
     const char* _otaPassword = NULL;
     int _ledPin = -1;
+
+    void connectWiFi();
 };
 
 #endif
