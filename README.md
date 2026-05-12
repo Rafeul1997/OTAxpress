@@ -20,9 +20,12 @@ Download or clone this repository into your Arduino `libraries` folder.
 OTAxpress ota("YOUR_SSID", "YOUR_PASSWORD");
 
 void setup() {
+  ota.setStatusLED(2);   // Optional LED
   ota.begin();
 }
 
 void loop() {
   ota.handle();
+
+  // Your application code here
 }
