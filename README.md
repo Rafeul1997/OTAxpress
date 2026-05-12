@@ -1,7 +1,5 @@
 # OTAxpress 🚀
 
-![OTAxpress Banner](banner.png)
-
 Fast, minimal OTA updates for ESP32.
 
 ![ESP32](https://img.shields.io/badge/ESP32-Compatible-blue)
