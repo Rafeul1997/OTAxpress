@@ -19,7 +19,7 @@ class OTAxpress {
   private:
     const char* _ssid;
     const char* _password;
-    const char* _hostname = "OTAxpress-ESP32";
+    const char* _hostname = NULL;
     const char* _otaPassword = NULL;
     int _ledPin = -1;
 
